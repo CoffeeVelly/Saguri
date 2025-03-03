@@ -5,7 +5,6 @@ using UnityEngine;
 public class ActionSwitch : MonoBehaviour
 {
     private Animator animator;
-    private int currentInput = 0;
     private int previousInput = 0; // 保存上一次的输入值
 
     void Start()
@@ -20,7 +19,7 @@ public class ActionSwitch : MonoBehaviour
 
     void Update()
     {
-        // 获取用户输入 (1-6)
+        // 获取用户输入 (1-9)
         int input = 0;
         if (Input.GetKeyDown(KeyCode.Alpha1)) input = 1;
         else if (Input.GetKeyDown(KeyCode.Alpha2)) input = 2;
@@ -28,6 +27,9 @@ public class ActionSwitch : MonoBehaviour
         else if (Input.GetKeyDown(KeyCode.Alpha4)) input = 4;
         else if (Input.GetKeyDown(KeyCode.Alpha5)) input = 5;
         else if (Input.GetKeyDown(KeyCode.Alpha6)) input = 6;
+        else if (Input.GetKeyDown(KeyCode.Alpha7)) input = 7;
+        else if (Input.GetKeyDown(KeyCode.Alpha8)) input = 8;
+        else if (Input.GetKeyDown(KeyCode.Alpha9)) input = 9;
 
         // 检查输入是否发生变化
         if (input != previousInput)
