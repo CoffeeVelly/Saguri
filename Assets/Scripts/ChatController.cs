@@ -5,16 +5,19 @@ using System.Text;
 using System; // 引入 System 命名空间
 using System.Net;
 using System.Collections.Generic;
+using System.Collections.Concurrent; // 引入命名空间
 
 public class AiAnimationController : MonoBehaviour
 {
     private Animator animator; // 将你的角色 Animator 组件拖拽到这里
 
-    private int port = 8999;
+    private int port = 9000;
     private HttpListener listener;
     private bool isRunning = false;
 
     private int previousInput = 0; // 保存上一次的输入值
+
+    private ConcurrentQueue<Action> mainThreadActions = new ConcurrentQueue<Action>(); // 用于主线程任务队列
 
     // 定义 emotion 到 animation 的映射
     private Dictionary<string, string> emotionMap = new Dictionary<string, string>()
@@ -103,6 +106,15 @@ public class AiAnimationController : MonoBehaviour
         Debug.Log("Server stopped");
     }
 
+    void Update()
+    {
+        // 在主线程中执行队列中的任务
+        while (mainThreadActions.TryDequeue(out var action))
+        {
+            action.Invoke();
+        }
+    }
+
     void ListenerCallback(IAsyncResult result)
     {
         HttpListener listener = (HttpListener)result.AsyncState;
@@ -131,7 +143,9 @@ public class AiAnimationController : MonoBehaviour
             if (emotionMap.ContainsKey(command.emotion))
             {
                 string animationName = emotionMap[command.emotion];
-                HandleAnimationCommand(animationName);
+
+                // 将动画处理任务添加到主线程队列
+                mainThreadActions.Enqueue(() => HandleAnimationCommand(animationName));
             }
             else
             {
